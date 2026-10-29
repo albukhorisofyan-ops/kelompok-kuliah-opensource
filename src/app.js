@@ -17,9 +17,24 @@ app.get('/', (req, res) => {
   res.json({ message: 'To-Do List API berjalan' });
 });
 
-// GET /tasks : ambil semua tugas
+// GET /tasks : ambil semua tugas (opsional: ?completed=true|false)
 app.get('/tasks', (req, res) => {
-  res.json(tasks);
+  const { completed } = req.query;
+
+  // Tanpa parameter: kembalikan semua tugas (perilaku lama)
+  if (completed === undefined) {
+    return res.json(tasks);
+  }
+
+  // Selain "true" / "false" ditolak
+  if (completed !== 'true' && completed !== 'false') {
+    return res
+      .status(400)
+      .json({ error: 'Parameter "completed" harus bernilai "true" atau "false"' });
+  }
+
+  const isCompleted = completed === 'true';
+  res.json(tasks.filter((t) => t.completed === isCompleted));
 });
 
 // POST /tasks : buat tugas baru
